@@ -508,70 +508,159 @@
 </div>
 
 <!-- ============================== -->
-<!-- LIVE OUTPUT EXAMPLES -->
+<!-- LIVE OUTPUT EXAMPLES TOGGLE -->
 <!-- ============================== -->
-<div class="sh">Live Output Examples</div>
-<p style="font-size:11px;color:#888;margin-bottom:14px;">Translated samples of real AI-generated outputs delivered to Telegram channels</p>
+<button class="dev-toggle-btn" style="margin-top:30px;border-color:#10b981;" onclick="document.getElementById('outputExamples').classList.toggle('open'); this.textContent = this.textContent.includes('Show') ? 'Hide Live Output Examples' : 'Show Live Output Examples';">
+  Show Live Output Examples
+</button>
+
+<div id="outputExamples" class="dev-details">
+<p style="font-size:11px;color:#888;margin-bottom:14px;">Translated samples of real AI-generated outputs delivered to each Telegram channel</p>
 
 <div style="display:flex;gap:14px;flex-wrap:wrap;margin-bottom:30px;">
 
-  <!-- Market Report + Urgent Alert (LINE 1) -->
-  <div style="background:#111827;border:1px solid #3b82f6;border-radius:10px;padding:16px;flex:1;min-width:320px;">
+  <!-- Market Analysis Report -->
+  <div style="background:#111827;border:1px solid #3b82f6;border-radius:10px;padding:16px;flex:1;min-width:340px;">
     <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;">
-      <span style="font-size:13px;font-weight:700;color:#60a5fa;">LINE 1 — Market Intelligence</span>
-      <span style="font-size:9px;background:#3b82f6;color:#fff;padding:2px 8px;border-radius:4px;margin-left:auto;">#market #urgent</span>
+      <span style="font-size:16px;">📊</span>
+      <span style="font-size:13px;font-weight:700;color:#60a5fa;">LINE 1 — Market Analysis Report</span>
+      <span style="font-size:9px;background:#3b82f6;color:#fff;padding:2px 8px;border-radius:4px;margin-left:auto;">#market</span>
     </div>
-    <div style="font-size:11px;color:#d1d5db;line-height:1.6;background:#0d1117;border-radius:8px;padding:12px;">
-      <div style="font-weight:600;color:#c4b5fd;margin-bottom:4px;">Daily Report (excerpt)</div>
-      <div>• Community activity +15%, airdrop questions surging</div>
-      <div>• Hyperliquid 5 new listings — competitor buzz spiking</div>
-      <div>• BTC $87,200, sentiment positive (Fear & Greed: 72)</div>
-      <div style="border-top:1px solid #333;margin:8px 0;padding-top:6px;font-weight:600;color:#f87171;">Urgent Alert (auto-triggered)</div>
-      <div>• Hyperliquid listing detected via TG monitoring</div>
-      <div>• Action: deploy differentiation content + share roadmap</div>
-      <div style="border-top:1px solid #333;margin:8px 0;padding-top:6px;font-weight:600;color:#fbbf24;">Competitor Snapshot</div>
-      <div>• Hyperliquid $2.82B | edgeX $1.59B | GRVT $986M | BasedApp $450M</div>
+    <div style="font-size:11px;color:#d1d5db;line-height:1.6;background:#0d1117;border-radius:8px;padding:12px;max-height:280px;overflow-y:auto;">
+      <div style="font-weight:700;color:#fff;margin-bottom:6px;">Variational Daily Market Report</div>
+      <div style="color:#888;font-size:10px;margin-bottom:8px;">March 31, 2026 (Mon) | KST 11:00</div>
+      <div style="border-top:1px solid #333;padding-top:6px;margin-bottom:6px;font-weight:600;color:#c4b5fd;">1. Executive Summary</div>
+      <div>• Community activity up +15% vs previous day, airdrop questions surging</div>
+      <div>• Hyperliquid announced 5 new token listings — competitor attention spiking</div>
+      <div>• BTC broke $87,200, overall market sentiment positive (Fear & Greed: 72)</div>
+      <div style="border-top:1px solid #333;padding-top:6px;margin-top:8px;margin-bottom:6px;font-weight:600;color:#c4b5fd;">2. Competitor Comparison</div>
+      <div>• Hyperliquid: $2.82B vol, 5 new listings</div>
+      <div>• edgeX: $1.59B vol, mobile app update</div>
+      <div>• GRVT: $986M vol, farming event extended</div>
+      <div>• BasedApp: $450M vol, airdrop hints circulating</div>
+      <div style="border-top:1px solid #333;padding-top:6px;margin-top:8px;margin-bottom:6px;font-weight:600;color:#c4b5fd;">3. Action Items</div>
+      <div>• [Urgent] 3 withdrawal delay complaints — escalate to tech team</div>
+      <div>• [Urgent] Counter Hyperliquid listing buzz with differentiation content</div>
+      <div>• [Mid-term] Monitor BasedApp growth — prepare competitive response</div>
     </div>
   </div>
 
-  <!-- Content + Q&A (LINE 2 & 3) -->
-  <div style="background:#111827;border:1px solid #10b981;border-radius:10px;padding:16px;flex:1;min-width:320px;">
+  <!-- Urgent Alert -->
+  <div style="background:#111827;border:1px solid #ef4444;border-radius:10px;padding:16px;flex:1;min-width:340px;">
     <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;">
-      <span style="font-size:13px;font-weight:700;color:#34d399;">LINE 2&3 — Content & Community</span>
-      <span style="font-size:9px;background:#10b981;color:#fff;padding:2px 8px;border-radius:4px;margin-left:auto;">#content #qa</span>
+      <span style="font-size:16px;">🚨</span>
+      <span style="font-size:13px;font-weight:700;color:#f87171;">LINE 1 — Urgent Alert</span>
+      <span style="font-size:9px;background:#ef4444;color:#fff;padding:2px 8px;border-radius:4px;margin-left:auto;">#urgent</span>
     </div>
     <div style="font-size:11px;color:#d1d5db;line-height:1.6;background:#0d1117;border-radius:8px;padding:12px;">
-      <div style="font-weight:600;color:#34d399;margin-bottom:4px;">Content Plan (trend-driven)</div>
-      <div>• DEX comparison infographic — "Which perp DEX?" trending</div>
-      <div>• Airdrop farming guide — 40% of community questions</div>
-      <div>• Funding rate tutorial — KOL mentions up +35%</div>
-      <div style="border-top:1px solid #333;margin:8px 0;padding-top:6px;font-weight:600;color:#fbbf24;">Q&A Draft (auto-generated)</div>
-      <div style="padding-left:10px;border-left:2px solid #f59e0b;margin-bottom:4px;"><b>Q: "When is the airdrop?"</b> (asked 5x)<br>"No official date yet. Follow @variaboratory for updates."</div>
-      <div style="padding-left:10px;border-left:2px solid #f59e0b;"><b>Q: "Why is withdrawal slow?"</b> (3x)<br>"Network congestion — team monitoring. Contact support if persistent."</div>
+      <div style="font-weight:700;color:#f87171;margin-bottom:6px;">[URGENT] Major Hyperliquid Update Detected</div>
+      <div style="color:#888;font-size:10px;margin-bottom:8px;">Detected: 2026-03-31 09:23 KST | Source: Hyperliquid_KR Telegram</div>
+      <div style="margin-bottom:6px;">Hyperliquid announced simultaneous listing of 5 new tokens. Korean community exploding with positive reactions ("HL is insane", "going all-in on Hyper").</div>
+      <div style="font-weight:600;color:#fbbf24;margin-bottom:4px;">Impact Analysis:</div>
+      <div>• Hyperliquid volume expected to spike short-term</div>
+      <div>• Awareness gap vs Variational may widen</div>
+      <div>• Immediate differentiation content recommended</div>
+      <div style="font-weight:600;color:#fbbf24;margin-top:6px;margin-bottom:4px;">Recommended Actions:</div>
+      <div>1. Deploy Variational differentiation content ASAP</div>
+      <div>2. Share Variational roadmap update with community</div>
     </div>
   </div>
 
-  <!-- Performance + Mindshare (LINE 4) -->
-  <div style="background:#111827;border:1px solid #ef4444;border-radius:10px;padding:16px;flex:1;min-width:320px;">
+</div>
+
+<div style="display:flex;gap:14px;flex-wrap:wrap;margin-bottom:30px;">
+
+  <!-- Content Planning -->
+  <div style="background:#111827;border:1px solid #10b981;border-radius:10px;padding:16px;flex:1;min-width:340px;">
     <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;">
-      <span style="font-size:13px;font-weight:700;color:#f87171;">LINE 4 — Performance & Mindshare</span>
+      <span style="font-size:16px;">🎨</span>
+      <span style="font-size:13px;font-weight:700;color:#34d399;">LINE 2 — Content Planning</span>
+      <span style="font-size:9px;background:#10b981;color:#fff;padding:2px 8px;border-radius:4px;margin-left:auto;">#content</span>
+    </div>
+    <div style="font-size:11px;color:#d1d5db;line-height:1.6;background:#0d1117;border-radius:8px;padding:12px;max-height:280px;overflow-y:auto;">
+      <div style="font-weight:700;color:#fff;margin-bottom:6px;">Variational Content Plan</div>
+      <div style="color:#888;font-size:10px;margin-bottom:8px;">Based on Trend Research Agent analysis</div>
+      <div style="font-weight:600;color:#34d399;margin-bottom:4px;">[1] Perpetual DEX Comparison Infographic ★★★★★</div>
+      <div>• Trend: "Which perp DEX is best?" questions surging in KR community</div>
+      <div>• Format: Card news (Instagram/X cross-post)</div>
+      <div>• Expected impact: New user acquisition + positioning</div>
+      <div style="font-weight:600;color:#34d399;margin-top:8px;margin-bottom:4px;">[2] Airdrop Farming Guide ★★★★★</div>
+      <div>• Trend: Airdrop questions = 40% of all community messages</div>
+      <div>• Format: Telegram long-form + X thread</div>
+      <div>• Expected impact: User onboarding + volume increase</div>
+      <div style="font-weight:600;color:#34d399;margin-top:8px;margin-bottom:4px;">[3] Funding Rate Arbitrage Tutorial ★★★★</div>
+      <div>• Trend: KOL mentions of "funding rate trading" up +35%</div>
+      <div>• Format: YouTube short + X thread</div>
+      <div>• Expected impact: Advanced trader acquisition</div>
+    </div>
+  </div>
+
+  <!-- Q&A Response -->
+  <div style="background:#111827;border:1px solid #f59e0b;border-radius:10px;padding:16px;flex:1;min-width:340px;">
+    <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;">
+      <span style="font-size:16px;">💬</span>
+      <span style="font-size:13px;font-weight:700;color:#fbbf24;">LINE 3 — Community Q&A</span>
+      <span style="font-size:9px;background:#f59e0b;color:#000;padding:2px 8px;border-radius:4px;margin-left:auto;">#qa_marketing</span>
+    </div>
+    <div style="font-size:11px;color:#d1d5db;line-height:1.6;background:#0d1117;border-radius:8px;padding:12px;">
+      <div style="font-weight:700;color:#fff;margin-bottom:6px;">Community Q&A Draft Responses</div>
+      <div style="font-weight:600;color:#fbbf24;margin-bottom:4px;">Q1. "When is the airdrop?" (asked 5 times)</div>
+      <div style="padding-left:10px;border-left:2px solid #f59e0b;margin-bottom:8px;">"Hi! The official airdrop schedule hasn't been announced yet. Follow @variaboratory for the latest updates! Please be cautious of unverified information."</div>
+      <div style="font-weight:600;color:#fbbf24;margin-bottom:4px;">Q2. "Why is withdrawal so slow?" (asked 3 times)</div>
+      <div style="padding-left:10px;border-left:2px solid #f59e0b;margin-bottom:8px;">"We apologize for the inconvenience. Network congestion is causing delays. Our team is monitoring the situation. Please contact support@variational.io if delays persist."</div>
+      <div style="font-weight:600;color:#fbbf24;margin-bottom:4px;">Q3. "What's the max leverage?" (asked 2 times)</div>
+      <div style="padding-left:10px;border-left:2px solid #f59e0b;">"Currently Variational supports up to 20x leverage. Higher leverage options are under review — stay tuned!"</div>
+    </div>
+  </div>
+
+</div>
+
+<div style="display:flex;gap:14px;flex-wrap:wrap;margin-bottom:30px;">
+
+  <!-- Performance Report -->
+  <div style="background:#111827;border:1px solid #ef4444;border-radius:10px;padding:16px;flex:1;min-width:340px;max-width:calc(50% - 7px);">
+    <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;">
+      <span style="font-size:16px;">📈</span>
+      <span style="font-size:13px;font-weight:700;color:#f87171;">LINE 4 — Daily Performance</span>
       <span style="font-size:9px;background:#ef4444;color:#fff;padding:2px 8px;border-radius:4px;margin-left:auto;">#performance</span>
     </div>
     <div style="font-size:11px;color:#d1d5db;line-height:1.6;background:#0d1117;border-radius:8px;padding:12px;">
-      <div style="font-weight:600;color:#c4b5fd;margin-bottom:4px;">Daily KPI</div>
-      <div>• Messages: 47 (+14.6%) | Active users: 18 (+20%)</div>
-      <div>• Sentiment: 72% positive (+5%p)</div>
-      <div>• Top topics: Airdrop 40% | Trading 26% | Issues 13%</div>
-      <div style="border-top:1px solid #333;margin:8px 0;padding-top:6px;font-weight:600;color:#a78bfa;">KR Community Mindshare</div>
-      <div style="font-family:monospace;font-size:10px;line-height:1.7;">
+      <div style="font-weight:700;color:#fff;margin-bottom:6px;">Daily Performance Report</div>
+      <div style="color:#888;font-size:10px;margin-bottom:8px;">March 31, 2026 | Performance Agent</div>
+      <div style="font-weight:600;color:#c4b5fd;margin-bottom:4px;">[Community Activity]</div>
+      <div>• Telegram messages: 47 (prev: 41, +14.6%)</div>
+      <div>• Meaningful messages: 23 (post-filter)</div>
+      <div>• Active users: 18 (prev: 15, +20.0%)</div>
+      <div style="font-weight:600;color:#c4b5fd;margin-top:8px;margin-bottom:4px;">[Sentiment Analysis]</div>
+      <div>• Positive: 72% | Neutral: 15% | Negative: 13%</div>
+      <div>• Positive sentiment up +5%p vs previous day</div>
+      <div style="font-weight:600;color:#c4b5fd;margin-top:8px;margin-bottom:4px;">[Top Discussion Topics]</div>
+      <div>• Airdrop/TGE — 40% | Trading — 26% | Withdrawal issues — 13%</div>
+    </div>
+  </div>
+
+  <!-- Mindshare -->
+  <div style="background:#111827;border:1px solid #a78bfa;border-radius:10px;padding:16px;flex:1;min-width:340px;max-width:calc(50% - 7px);">
+    <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;">
+      <span style="font-size:16px;">📊</span>
+      <span style="font-size:13px;font-weight:700;color:#a78bfa;">Mindshare — Included in Report</span>
+      <span style="font-size:9px;background:#7c3aed;color:#fff;padding:2px 8px;border-radius:4px;margin-left:auto;">auto-calculated</span>
+    </div>
+    <div style="font-size:11px;color:#d1d5db;line-height:1.6;background:#0d1117;border-radius:8px;padding:12px;">
+      <div style="font-weight:700;color:#fff;margin-bottom:6px;">Perp DEX Korean Community Mindshare</div>
+      <div style="color:#888;font-size:10px;margin-bottom:8px;">Based on TG activity (40%) + X engagement (40%) + KOL mentions (20%)</div>
+      <div style="font-family:monospace;font-size:11px;line-height:1.8;">
         <div>Hyperliquid <span style="color:#c084fc;">██████████████</span> 48.7%</div>
         <div>BasedApp&nbsp;&nbsp;&nbsp; <span style="color:#c084fc;">████████░░░░░░</span> 22.3%</div>
         <div>Variational <span style="color:#c084fc;">█████░░░░░░░░░</span> 14.1%</div>
         <div>GRVT&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <span style="color:#c084fc;">███░░░░░░░░░░░</span>&nbsp; 8.5%</div>
+        <div>edgeX&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <span style="color:#c084fc;">██░░░░░░░░░░░░</span>&nbsp; 4.2%</div>
+        <div>Lighter&nbsp;&nbsp;&nbsp;&nbsp; <span style="color:#c084fc;">█░░░░░░░░░░░░░</span>&nbsp; 2.2%</div>
       </div>
     </div>
   </div>
 
+</div>
 </div>
 
 <!-- ============================== -->
