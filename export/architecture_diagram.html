@@ -1,0 +1,698 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Variational AI Agent Harness — Architecture</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'Segoe UI', sans-serif; background: #0a0e17; color: #e0e0e0; padding: 30px; }
+  h1 { text-align: center; font-size: 28px; color: #fff; margin-bottom: 5px; }
+  .subtitle { text-align: center; color: #888; font-size: 14px; margin-bottom: 30px; }
+  .wrap { max-width: 1200px; margin: 0 auto; }
+  .sh { font-size: 16px; font-weight: 700; color: #9ca3af; text-transform: uppercase; letter-spacing: 2px; border-bottom: 1px solid #374151; padding-bottom: 6px; margin: 36px 0 14px; }
+
+  /* Role Overview */
+  .role-overview { margin-bottom: 30px; }
+  .role-line { margin-bottom: 16px; }
+  .role-line-header { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+  .role-line-badge { padding: 4px 14px; border-radius: 6px; font-size: 12px; font-weight: 700; color: #fff; letter-spacing: 0.5px; white-space: nowrap; }
+  .role-line-title { font-size: 13px; color: #ccc; font-weight: 600; }
+  .role-cards { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+  .role-card { background: linear-gradient(135deg,#131825,#0d1117); border: 1px solid #333; border-radius: 10px; padding: 14px 16px; flex: 1; min-width: 180px; position: relative; }
+  .role-card h3 { font-size: 12px; font-weight: 700; color: #fff; margin-bottom: 6px; line-height: 1.3; }
+  .role-card .role-desc { font-size: 11px; color: #9ca3af; line-height: 1.5; margin-bottom: 8px; }
+  .role-card .role-output { font-size: 10px; color: #555; border-top: 1px solid #1f2937; padding-top: 6px; }
+  .role-card .role-output span { color: #a78bfa; font-weight: 600; }
+  .role-arrow { display: flex; align-items: center; justify-content: center; font-size: 20px; flex-shrink: 0; min-width: 28px; }
+  .role-final { border: 2px solid; }
+  .role-badge-sm { display: inline-block; font-size: 8px; padding: 2px 6px; border-radius: 3px; font-weight: 700; color: #fff; margin-left: 6px; vertical-align: middle; }
+
+  /* LINE 1 specific: MF pair stacked vertically, reviewer highlighted */
+  .mf-pair { display: flex; flex-direction: column; gap: 8px; flex-shrink: 0; width: 180px; }
+  .mf-pair .role-card { flex: none; min-width: auto; padding: 10px 14px; }
+  .mf-pair .role-card h3 { font-size: 11px; }
+  .mf-pair .role-card .role-desc { font-size: 10px; margin-bottom: 4px; }
+  .mf-pair .role-card .role-output { font-size: 9px; }
+  .role-reviewer { background: linear-gradient(135deg,#0d1a30,#0a1225) !important; border: 2px solid #3b82f6 !important; box-shadow: 0 0 18px rgba(59,130,246,0.15); min-width: 200px; }
+  .role-reviewer h3 { font-size: 13px !important; }
+  .role-reviewer .role-output { font-size: 11px !important; }
+
+  /* LINE sections */
+  .line { border: 2px solid; border-radius: 12px; padding: 22px 20px 16px; margin-bottom: 20px; position: relative; }
+  .line-tag { position: absolute; top: -13px; left: 20px; padding: 2px 14px; border-radius: 8px; font-size: 12px; font-weight: 700; letter-spacing: 1px; }
+  .l1 { border-color: #3b82f6; background: rgba(59,130,246,.04); } .l1 .line-tag { background: #3b82f6; color: #fff; }
+  .l2 { border-color: #10b981; background: rgba(16,185,129,.04); } .l2 .line-tag { background: #10b981; color: #fff; }
+  .l3 { border-color: #f59e0b; background: rgba(245,158,11,.04); } .l3 .line-tag { background: #f59e0b; color: #000; }
+  .l4 { border-color: #ef4444; background: rgba(239,68,68,.04); } .l4 .line-tag { background: #ef4444; color: #fff; }
+
+  /* Agent row */
+  .arow { display: flex; gap: 12px; align-items: stretch; flex-wrap: wrap; }
+  .abox { background: #1a1f2e; border: 1px solid #333; border-radius: 10px; padding: 13px 16px; min-width: 170px; flex: 1; transition: transform .2s; }
+  .abox:hover { transform: translateY(-2px); border-color: #666; }
+  .abox h3 { font-size: 13px; font-weight: 700; margin-bottom: 5px; line-height: 1.3; }
+  .abox p { font-size: 10px; color: #999; line-height: 1.4; }
+
+  /* Arrow + Channel */
+  .ar { display: flex; align-items: center; justify-content: center; color: #555; font-size: 22px; min-width: 32px; flex-shrink: 0; }
+  .ch { background: linear-gradient(135deg,#1a2940,#0d1520); border: 1px solid #2563eb; border-radius: 10px; padding: 10px 14px; min-width: 110px; text-align: center; flex-shrink: 0; }
+  .ch .ci { font-size: 18px; } .ch .cn { font-size: 11px; font-weight: 600; color: #60a5fa; }
+
+  /* Simple description */
+  .line-desc { margin-top: 10px; font-size: 11px; color: #9ca3af; line-height: 1.5; padding: 8px 12px; background: rgba(255,255,255,.02); border-radius: 6px; }
+  .line-desc strong { color: #c4b5fd; }
+
+  /* Urgent */
+  .urgent { background: rgba(239,68,68,.08); border: 2px dashed #ef4444; border-radius: 10px; padding: 12px 18px; display: flex; align-items: center; gap: 14px; margin-top: 12px; }
+
+  /* Data sources */
+  .ds { display: flex; gap: 14px; flex-wrap: wrap; }
+  .dsg { background: #111827; border: 1px solid #374151; border-radius: 10px; padding: 14px; flex: 1; min-width: 230px; }
+  .dsg h4 { font-size: 12px; font-weight: 700; color: #9ca3af; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 6px; }
+  .dsg p { font-size: 11px; color: #d1d5db; padding: 2px 0; }
+
+  /* Mindshare section */
+  .ms-section { border: 2px solid #a78bfa; border-radius: 12px; padding: 20px; background: rgba(124,58,237,.04); position: relative; margin-bottom: 24px; }
+  .ms-section .line-tag { background: linear-gradient(135deg,#7c3aed,#a78bfa); color: #fff; }
+  .ms-pipeline { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; margin-top: 10px; }
+  .ms-box { background: linear-gradient(135deg,#1a1040,#0d0820); border: 1px solid #7c3aed; border-radius: 8px; padding: 10px 14px; text-align: center; flex: 1; min-width: 130px; }
+  .ms-box h4 { font-size: 11px; color: #a78bfa; font-weight: 700; margin-bottom: 3px; }
+  .ms-box p { font-size: 10px; color: #888; }
+  .ms-box .pct { font-size: 14px; color: #c084fc; font-weight: 700; }
+  .ms-arrow { color: #7c3aed; font-size: 20px; flex-shrink: 0; }
+
+  /* Pipeline */
+  .pipes { display: flex; gap: 14px; flex-wrap: wrap; }
+  .pipe { background: #111827; border: 1px solid #374151; border-radius: 10px; padding: 14px; flex: 1; min-width: 320px; }
+  .pipe h3 { font-size: 13px; font-weight: 700; margin-bottom: 8px; }
+  .pstep { font-size: 11px; color: #d1d5db; padding: 5px 0; border-bottom: 1px solid #1f2937; display: flex; align-items: center; gap: 8px; }
+  .pstep:last-child { border-bottom: none; }
+  .sn { display: inline-flex; align-items: center; justify-content: center; background: #374151; color: #fff; width: 20px; height: 20px; border-radius: 50%; font-size: 10px; flex-shrink: 0; }
+
+  /* Communication summary table */
+  .comm-table { width: 100%; font-size: 12px; border-collapse: collapse; }
+  .comm-table td { padding: 8px 10px; border-bottom: 1px solid #1f2937; }
+  .comm-table tr:last-child td { border-bottom: none; }
+  .from-dot { display: inline-block; width: 10px; height: 10px; border-radius: 50%; margin-right: 6px; vertical-align: middle; }
+
+  /* SVG flow */
+  .harness-wrap { position: relative; width: 100%; overflow-x: auto; }
+  .harness-svg { width: 100%; min-width: 860px; }
+
+  /* ===== DEV DETAILS TOGGLE ===== */
+  .dev-toggle-btn {
+    display: block; margin: 40px auto 0; padding: 14px 40px;
+    background: linear-gradient(135deg, #1e293b, #0f172a); border: 1px solid #374151;
+    border-radius: 10px; color: #9ca3af; font-size: 14px; font-weight: 600;
+    cursor: pointer; transition: all .2s; letter-spacing: 1px;
+  }
+  .dev-toggle-btn:hover { border-color: #a78bfa; color: #c4b5fd; transform: translateY(-2px); }
+  .dev-details { display: none; margin-top: 20px; }
+  .dev-details.open { display: block; }
+
+  /* Dev detail boxes */
+  .ugrid { display: flex; gap: 10px; flex-wrap: wrap; }
+  .ubox { background: #1a1f2e; border: 1px solid #333; border-radius: 8px; padding: 9px 12px; flex: 1; min-width: 140px; }
+  .ubox h4 { font-size: 11px; font-weight: 700; color: #a78bfa; }
+  .ubox p { font-size: 9px; color: #888; margin-top: 3px; }
+  .tech { display: flex; gap: 10px; flex-wrap: wrap; }
+  .tbadge { background: #1a1f2e; border: 1px solid #333; border-radius: 8px; padding: 7px 14px; font-size: 11px; }
+  .tag { display: inline-block; font-size: 9px; padding: 2px 7px; border-radius: 4px; margin-top: 5px; font-weight: 600; }
+  .tc { background: #1e3a5f; color: #60a5fa; } .ta { background: #1e3f30; color: #34d399; }
+  .to { background: #3f2e1e; color: #fbbf24; } .tr { background: #3f1e1e; color: #f87171; }
+  .cache-label { display: inline-block; background: #7c3aed; color: #fff; font-size: 9px; padding: 1px 6px; border-radius: 3px; font-weight: 600; }
+  .cache-label-read { background: #2563eb; }
+  .conn-note { background: rgba(124,58,237,.12); border: 1px dashed #7c3aed; border-radius: 8px; padding: 10px 14px; margin-top: 10px; font-size: 11px; color: #c4b5fd; line-height: 1.5; }
+  .conn-note strong { color: #a78bfa; }
+  .cross-section { border: 2px solid #7c3aed; border-radius: 12px; padding: 20px; margin-bottom: 24px; background: rgba(124,58,237,.04); position: relative; }
+  .cross-section .line-tag { background: linear-gradient(135deg,#7c3aed,#2563eb); color: #fff; }
+  .flow-grid { display: grid; grid-template-columns: 1fr auto 1fr auto 1fr; gap: 10px; align-items: center; }
+  .flow-box { background: #1a1f2e; border: 1px solid #444; border-radius: 8px; padding: 12px; text-align: center; }
+  .flow-box h4 { font-size: 12px; font-weight: 700; margin-bottom: 4px; }
+  .flow-box p { font-size: 10px; color: #999; }
+  .flow-box .from-line { font-size: 9px; padding: 1px 6px; border-radius: 3px; display: inline-block; margin-bottom: 4px; font-weight: 600; }
+  .fl1 { background: #3b82f6; color: #fff; } .fl2 { background: #10b981; color: #fff; }
+  .fl3 { background: #f59e0b; color: #000; } .fl4 { background: #ef4444; color: #fff; }
+  .flow-arrow { text-align: center; color: #7c3aed; font-size: 20px; font-weight: 700; }
+  .flow-arrow span { display: block; font-size: 9px; color: #a78bfa; font-weight: 400; margin-top: 2px; }
+  .papi { font-size: 9px; color: #f59e0b; margin-left: auto; }
+  .pcache { font-size: 9px; color: #a78bfa; margin-left: auto; }
+  .legend-item { display: flex; align-items: center; gap: 6px; font-size: 11px; color: #999; }
+  .legend-line { width: 30px; height: 3px; border-radius: 2px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<h1>AI Agent-Powered CM Workflow Optimization System</h1>
+<p class="subtitle">11 AI agents autonomously handle market analysis, content planning, marketing, and performance reporting</p>
+<p style="text-align:center; font-size:11px; color:#f59e0b; margin-bottom:24px;">* This is a portfolio demo. The system is fully production-ready &mdash; simply plug in API keys to go live.</p>
+
+<!-- Problem → Solution → Impact (compact) -->
+<div style="background: linear-gradient(135deg, #111827, #0d1520); border: 1px solid #374151; border-radius: 12px; padding: 20px 28px; margin-bottom: 14px;">
+  <div style="display: flex; gap: 20px; flex-wrap: wrap;">
+    <div style="flex:1; min-width: 220px;">
+      <div style="font-size: 12px; font-weight: 700; color: #60a5fa; margin-bottom: 8px;">PROBLEM</div>
+      <ul style="font-size: 12px; color: #bbb; line-height: 1.8; margin: 0; padding-left: 16px;">
+        <li>One CM doing everything manually</li>
+        <li><strong style="color:#f87171;">6+ hours/day</strong> on repetitive tasks</li>
+        <li>No time left for strategic work</li>
+      </ul>
+    </div>
+    <div style="flex:1; min-width: 220px;">
+      <div style="font-size: 12px; font-weight: 700; color: #34d399; margin-bottom: 8px;">SOLUTION</div>
+      <ul style="font-size: 12px; color: #bbb; line-height: 1.8; margin: 0; padding-left: 16px;">
+        <li>11 AI agents across 4 workflow LINEs</li>
+        <li>Auto-collect from 18+ data sources</li>
+        <li>Draft reports &amp; deliver to Telegram</li>
+        <li>I review and make final decisions</li>
+      </ul>
+    </div>
+    <div style="flex:1; min-width: 220px;">
+      <div style="font-size: 12px; font-weight: 700; color: #c084fc; margin-bottom: 8px;">IMPACT</div>
+      <ul style="font-size: 12px; color: #bbb; line-height: 1.8; margin: 0; padding-left: 16px;">
+        <li><strong style="color:#fff;">~80% time saved</strong> on data gathering</li>
+        <li>6 competitors tracked in real-time</li>
+        <li>Instant crisis alerts</li>
+        <li>CM focuses on <strong style="color:#fbbf24;">strategy &amp; relationships</strong></li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<!-- WHY HIRE ME -->
+<div style="background: linear-gradient(135deg, #1a1500, #151005); border: 2px solid #fbbf24; border-radius: 12px; padding: 20px 28px; margin-bottom: 30px;">
+  <div style="display: flex; gap: 24px; flex-wrap: wrap; align-items: center;">
+    <div style="flex: 3; min-width: 380px;">
+      <div style="font-size: 14px; font-weight: 700; color: #fbbf24; margin-bottom: 12px;">WHY HIRE ME</div>
+      <ul style="font-size: 12px; color: #ddd; line-height: 2; margin: 0; padding-left: 18px;">
+        <li><strong style="color:#fff;">I built and operate this entire system</strong> &mdash; designed the agents, tuned prompts, chose what data matters</li>
+        <li><strong style="color:#fff;">6 competitors + Korean crypto community covered at once</strong> &mdash; most CMs manually track 2&ndash;3</li>
+        <li><strong style="color:#fff;">Crisis detected instantly from 18+ sources</strong> &mdash; I respond before competitors even notice</li>
+        <li><strong style="color:#fff;">AI handles data &amp; drafts</strong> &mdash; I make the judgment calls, build trust, and drive strategy</li>
+      </ul>
+    </div>
+    <div style="flex: 1; min-width: 180px;">
+      <div style="background: #0d1117; border: 1px solid #374151; border-radius: 10px; padding: 14px;">
+        <div style="font-size: 11px; color: #fbbf24; font-weight: 700; margin-bottom: 8px; text-align: center;">Hire one person, get:</div>
+        <div style="font-size: 12px; color: #fff; line-height: 2;">
+          <span style="color:#34d399;">&#10003;</span> Community Manager<br>
+          <span style="color:#34d399;">&#10003;</span> Market intelligence<br>
+          <span style="color:#34d399;">&#10003;</span> Competitor monitoring<br>
+          <span style="color:#34d399;">&#10003;</span> Sentiment analysis<br>
+          <span style="color:#34d399;">&#10003;</span> Crisis early-warning
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============================== -->
+<!-- ROLE OVERVIEW -->
+<!-- ============================== -->
+<div class="role-overview">
+
+  <!-- LINE 1 -->
+  <div class="role-line">
+    <div class="role-line-header">
+      <div class="role-line-badge" style="background:#3b82f6;">LINE 1</div>
+      <div class="role-line-title">Market Analysis &mdash; Runs Daily (Auto)</div>
+    </div>
+    <div class="role-cards">
+      <div class="mf-pair">
+        <div class="role-card" style="border-color:#3b82f6;">
+          <h3>Market Follower Internal Agent</h3>
+          <div class="role-desc">Variational Korean community<br>Collects messages, views &amp; sentiment</div>
+          <div class="role-output"><span>→</span> Feeds into Report Agent</div>
+        </div>
+        <div class="role-card" style="border-color:#3b82f6;">
+          <h3>Market Follower External Agent</h3>
+          <div class="role-desc">5 competitor Telegram groups<br>Tracks activity, issues &amp; reactions</div>
+          <div class="role-output"><span>→</span> Feeds into Report Agent</div>
+        </div>
+      </div>
+      <div class="role-arrow" style="color:#3b82f6;">→</div>
+      <div class="role-card" style="border-color:#3b82f6;">
+        <h3>Report Agent</h3>
+        <div class="role-desc">Compiles all collected data into<br>a comprehensive report draft</div>
+        <div class="role-output"><span>→</span> Sends to Report Reviewer</div>
+      </div>
+      <div class="role-arrow" style="color:#3b82f6;">→</div>
+      <div class="role-card role-reviewer">
+        <h3>Report Reviewer Agent <span class="role-badge-sm" style="background:#3b82f6;">REVIEW</span></h3>
+        <div class="role-desc">Quality review + feedback<br>Finalizes the report</div>
+        <div class="role-output"><span>→</span> Telegram: Market Analysis channel<br><span>→</span> Shares results with POC Agent</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- LINE 2 -->
+  <div class="role-line">
+    <div class="role-line-header">
+      <div class="role-line-badge" style="background:#10b981;">LINE 2</div>
+      <div class="role-line-title">Content Planning &mdash; Runs Daily (Auto)</div>
+    </div>
+    <div class="role-cards">
+      <div class="role-card" style="border-color:#10b981;">
+        <h3>Trend Research Agent</h3>
+        <div class="role-desc">Analyzes trends, memes &amp; Mindshare<br>Leverages 18+ data sources</div>
+        <div class="role-output"><span>→</span> Feeds into Contents Creator<br><span>→</span> Shares results with POC Agent</div>
+      </div>
+      <div class="role-arrow" style="color:#10b981;">→</div>
+      <div class="role-card role-final" style="border-color:#10b981;">
+        <h3>Contents Creator Agent <span class="role-badge-sm" style="background:#10b981;">CREATE</span></h3>
+        <div class="role-desc">Generates content ideas from trends<br>Drafts Telegram posts</div>
+        <div class="role-output"><span>→</span> Telegram: Content channel</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- LINE 3 -->
+  <div class="role-line">
+    <div class="role-line-header">
+      <div class="role-line-badge" style="background:#f59e0b; color:#000;">LINE 3</div>
+      <div class="role-line-title">Community + Marketing</div>
+    </div>
+    <div class="role-cards">
+      <div class="role-card" style="border-color:#f59e0b;">
+        <h3>Q&A Agent</h3>
+        <div class="role-desc">Auto-collects community questions<br>Drafts FAQ-based answers</div>
+        <div class="role-output"><span>→</span> Telegram: Q&A / Marketing channel</div>
+      </div>
+      <div class="role-card" style="border-color:#f59e0b;">
+        <h3>Promotion Agent</h3>
+        <div class="role-desc">Competitor-informed marketing strategy<br>Campaign ideation &amp; planning</div>
+        <div class="role-output"><span>→</span> Telegram: Q&A / Marketing channel</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- LINE 4 -->
+  <div class="role-line">
+    <div class="role-line-header">
+      <div class="role-line-badge" style="background:#ef4444;">LINE 4</div>
+      <div class="role-line-title">Performance &amp; Executive Reporting</div>
+    </div>
+    <div class="role-cards">
+      <div class="role-card" style="border-color:#ef4444;">
+        <h3>Performance Agent (Daily)</h3>
+        <div class="role-desc">24h community activity tracking<br>Sentiment analysis + anomaly detection</div>
+        <div class="role-output"><span>→</span> Telegram: Performance channel</div>
+      </div>
+      <div class="role-card" style="border-color:#ef4444;">
+        <h3>Performance Agent (Weekly)</h3>
+        <div class="role-desc">7-day ROI + growth trends<br>Week-over-week comparison</div>
+        <div class="role-output"><span>→</span> Shares results with POC Agent</div>
+      </div>
+      <div class="role-arrow" style="color:#ef4444;">→</div>
+      <div class="role-card role-final" style="border-color:#ef4444; background: linear-gradient(135deg,#1a1215,#150d0d);">
+        <h3>POC Agent <span class="role-badge-sm" style="background:#ef4444;">FINAL REPORT</span></h3>
+        <div class="role-desc">Consolidates LINE 1, 2 &amp; 4 outputs<br><strong style="color:#f87171;">Executive report for management</strong></div>
+        <div class="role-output"><span>→</span> Telegram: Performance / Executive channel<br><span style="color:#f87171;">⚡ Instant alerts on urgent issues</span></div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ============================== -->
+<!-- SIMPLE FLOW DIAGRAM -->
+<!-- ============================== -->
+<div class="sh">Agent Communication Flow</div>
+<p style="font-size:12px;color:#888;margin-bottom:14px;">Shows how 11 agents operate in sequence and which agent&rsquo;s output feeds into which</p>
+
+<div class="harness-wrap">
+<svg class="harness-svg" viewBox="0 0 860 650" xmlns="http://www.w3.org/2000/svg" font-family="Segoe UI, sans-serif">
+  <defs>
+    <marker id="ab" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="#3b82f6"/></marker>
+    <marker id="ag" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="#10b981"/></marker>
+    <marker id="ay" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="#f59e0b"/></marker>
+    <marker id="ar" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="#ef4444"/></marker>
+    <marker id="ap" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="#a78bfa"/></marker>
+  </defs>
+
+  <!-- ===== LINE 1 ===== -->
+  <rect x="8" y="30" width="700" height="120" rx="10" fill="rgba(59,130,246,0.06)" stroke="#3b82f6" stroke-width="1.5"/>
+  <text x="22" y="22" fill="#3b82f6" font-size="12" font-weight="700">LINE 1 &mdash; Market Analysis</text>
+
+  <rect x="25" y="50" width="130" height="40" rx="8" fill="#1a1f2e" stroke="#3b82f6" stroke-width="1.5"/>
+  <text x="90" y="73" fill="#fff" font-size="10" font-weight="700" text-anchor="middle">Market Follower Internal</text>
+  <text x="90" y="85" fill="#60a5fa" font-size="7" text-anchor="middle">Variational Community</text>
+
+  <rect x="25" y="98" width="130" height="40" rx="8" fill="#1a1f2e" stroke="#3b82f6" stroke-width="1.5"/>
+  <text x="90" y="121" fill="#fff" font-size="10" font-weight="700" text-anchor="middle">Market Follower External</text>
+  <text x="90" y="133" fill="#60a5fa" font-size="7" text-anchor="middle">6 Competitor Monitoring</text>
+
+  <line x1="155" y1="70" x2="210" y2="85" stroke="#3b82f6" stroke-width="2" marker-end="url(#ab)"/>
+  <line x1="155" y1="118" x2="210" y2="100" stroke="#3b82f6" stroke-width="2" marker-end="url(#ab)"/>
+
+  <rect x="212" y="65" width="135" height="50" rx="8" fill="#1a1f2e" stroke="#3b82f6" stroke-width="1.5"/>
+  <text x="280" y="87" fill="#fff" font-size="10" font-weight="700" text-anchor="middle">Report Agent</text>
+  <text x="280" y="100" fill="#60a5fa" font-size="7" text-anchor="middle">Comprehensive Report Draft</text>
+
+  <line x1="347" y1="90" x2="395" y2="90" stroke="#3b82f6" stroke-width="2" marker-end="url(#ab)"/>
+
+  <rect x="397" y="65" width="155" height="50" rx="8" fill="#1a1f2e" stroke="#3b82f6" stroke-width="1.5"/>
+  <text x="475" y="87" fill="#fff" font-size="10" font-weight="700" text-anchor="middle">Report Reviewer Agent</text>
+  <text x="475" y="100" fill="#60a5fa" font-size="7" text-anchor="middle">Quality Review + Final Report</text>
+
+  <line x1="552" y1="90" x2="718" y2="56" stroke="#3b82f6" stroke-width="1.5" marker-end="url(#ab)"/>
+
+  <!-- TG Channels -->
+  <rect x="720" y="30" width="130" height="200" rx="10" fill="rgba(37,99,235,0.06)" stroke="#2563eb" stroke-width="1.5"/>
+  <text x="785" y="50" fill="#60a5fa" font-size="10" font-weight="700" text-anchor="middle">Telegram Channels</text>
+  <rect x="732" y="58" width="106" height="26" rx="5" fill="#0d1520" stroke="#3b82f6" stroke-width="1"/><text x="785" y="75" fill="#60a5fa" font-size="9" text-anchor="middle">Market Analysis</text>
+  <rect x="732" y="90" width="106" height="26" rx="5" fill="#0d1520" stroke="#10b981" stroke-width="1"/><text x="785" y="107" fill="#34d399" font-size="9" text-anchor="middle">Content</text>
+  <rect x="732" y="122" width="106" height="26" rx="5" fill="#0d1520" stroke="#f59e0b" stroke-width="1"/><text x="785" y="139" fill="#fbbf24" font-size="9" text-anchor="middle">Q&A + Marketing</text>
+  <rect x="732" y="154" width="106" height="26" rx="5" fill="#0d1520" stroke="#ef4444" stroke-width="1"/><text x="785" y="171" fill="#f87171" font-size="9" text-anchor="middle">Perf + Executive</text>
+  <rect x="732" y="190" width="106" height="26" rx="5" fill="#0d1520" stroke="#ef4444" stroke-width="1.5"/><text x="785" y="207" fill="#f87171" font-size="9" text-anchor="middle">Urgent Alerts</text>
+
+  <!-- ===== LINE 2 ===== -->
+  <rect x="8" y="180" width="700" height="95" rx="10" fill="rgba(16,185,129,0.06)" stroke="#10b981" stroke-width="1.5"/>
+  <text x="22" y="172" fill="#10b981" font-size="12" font-weight="700">LINE 2 &mdash; Content Planning</text>
+
+  <rect x="25" y="200" width="175" height="50" rx="8" fill="#1a1f2e" stroke="#10b981" stroke-width="1.5"/>
+  <text x="113" y="222" fill="#fff" font-size="10" font-weight="700" text-anchor="middle">Trend Research Agent</text>
+  <text x="113" y="234" fill="#34d399" font-size="7" text-anchor="middle">Trend/Meme Analysis + Mindshare</text>
+
+  <line x1="200" y1="225" x2="285" y2="225" stroke="#10b981" stroke-width="2" marker-end="url(#ag)"/>
+
+  <rect x="287" y="200" width="175" height="50" rx="8" fill="#1a1f2e" stroke="#10b981" stroke-width="1.5"/>
+  <text x="375" y="222" fill="#fff" font-size="10" font-weight="700" text-anchor="middle">Contents Creator Agent</text>
+  <text x="375" y="234" fill="#34d399" font-size="7" text-anchor="middle">Content Ideas + Draft Creation</text>
+
+  <line x1="462" y1="218" x2="730" y2="103" stroke="#10b981" stroke-width="1.5" marker-end="url(#ag)"/>
+
+  <!-- ===== LINE 3 ===== -->
+  <rect x="8" y="305" width="700" height="95" rx="10" fill="rgba(245,158,11,0.06)" stroke="#f59e0b" stroke-width="1.5"/>
+  <text x="22" y="297" fill="#f59e0b" font-size="12" font-weight="700">LINE 3 &mdash; Community + Marketing</text>
+
+  <rect x="25" y="325" width="145" height="50" rx="8" fill="#1a1f2e" stroke="#f59e0b" stroke-width="1.5"/>
+  <text x="98" y="347" fill="#fff" font-size="10" font-weight="700" text-anchor="middle">Q&A Agent</text>
+  <text x="98" y="359" fill="#fbbf24" font-size="7" text-anchor="middle">Collect Questions + Draft Answers</text>
+
+  <rect x="195" y="325" width="160" height="50" rx="8" fill="#1a1f2e" stroke="#f59e0b" stroke-width="1.5"/>
+  <text x="275" y="347" fill="#fff" font-size="10" font-weight="700" text-anchor="middle">Promotion Agent</text>
+  <text x="275" y="359" fill="#fbbf24" font-size="7" text-anchor="middle">Marketing Strategy + Campaigns</text>
+
+  <line x1="170" y1="345" x2="730" y2="135" stroke="#f59e0b" stroke-width="1.5" marker-end="url(#ay)"/>
+  <line x1="355" y1="345" x2="730" y2="135" stroke="#f59e0b" stroke-width="1.5" marker-end="url(#ay)"/>
+
+  <!-- ===== LINE 4 ===== -->
+  <rect x="8" y="430" width="700" height="105" rx="10" fill="rgba(239,68,68,0.06)" stroke="#ef4444" stroke-width="1.5"/>
+  <text x="22" y="422" fill="#ef4444" font-size="12" font-weight="700">LINE 4 &mdash; Performance + Executive Report</text>
+
+  <rect x="25" y="450" width="150" height="45" rx="8" fill="#1a1f2e" stroke="#ef4444" stroke-width="1.5"/>
+  <text x="100" y="470" fill="#fff" font-size="10" font-weight="700" text-anchor="middle">Perf Agent (Daily)</text>
+  <text x="100" y="482" fill="#f87171" font-size="7" text-anchor="middle">24h Activity + Sentiment</text>
+
+  <rect x="195" y="450" width="160" height="45" rx="8" fill="#1a1f2e" stroke="#ef4444" stroke-width="1.5"/>
+  <text x="275" y="470" fill="#fff" font-size="10" font-weight="700" text-anchor="middle">Perf Agent (Weekly)</text>
+  <text x="275" y="482" fill="#f87171" font-size="7" text-anchor="middle">7-day ROI + Growth Trends</text>
+
+  <line x1="355" y1="472" x2="410" y2="472" stroke="#ef4444" stroke-width="2" marker-end="url(#ar)"/>
+
+  <rect x="412" y="442" width="170" height="60" rx="8" fill="#1a1f2e" stroke="#ef4444" stroke-width="2"/>
+  <text x="497" y="464" fill="#fff" font-size="11" font-weight="700" text-anchor="middle">POC Agent</text>
+  <text x="497" y="478" fill="#f87171" font-size="8" text-anchor="middle">Consolidates 3 LINEs</text>
+  <text x="497" y="492" fill="#f87171" font-size="8" text-anchor="middle">&rarr; Executive Final Report</text>
+
+  <line x1="582" y1="465" x2="730" y2="167" stroke="#ef4444" stroke-width="1.5" marker-end="url(#ar)"/>
+  <line x1="175" y1="465" x2="730" y2="167" stroke="#ef4444" stroke-width="1" marker-end="url(#ar)" opacity="0.6"/>
+
+  <!-- ===== CROSS-LINE ARROWS (who feeds whom) ===== -->
+  <!-- Report Reviewer -> POC -->
+  <path d="M 475 115 Q 490 300 497 440" stroke="#a78bfa" stroke-width="2.5" fill="none" stroke-dasharray="8 4" marker-end="url(#ap)"/>
+  <rect x="488" y="270" width="130" height="18" rx="4" fill="#1a1040" stroke="#7c3aed" stroke-width="1"/>
+  <text x="553" y="283" fill="#c084fc" font-size="8" font-weight="700" text-anchor="middle">Market Analysis Output</text>
+
+  <!-- Trend Research -> POC -->
+  <path d="M 113 250 Q 200 380 412 475" stroke="#a78bfa" stroke-width="2" fill="none" stroke-dasharray="8 4" marker-end="url(#ap)"/>
+  <rect x="190" y="350" width="120" height="18" rx="4" fill="#1a1040" stroke="#7c3aed" stroke-width="1"/>
+  <text x="250" y="363" fill="#c084fc" font-size="8" font-weight="700" text-anchor="middle">Trend Analysis Output</text>
+
+  <!-- Perf Weekly -> POC (already has direct arrow) -->
+
+  <!-- Trend Research -> Contents Creator (already has direct arrow) -->
+
+  <!-- ===== MINDSHARE BADGE ===== -->
+  <rect x="580" y="565" width="260" height="70" rx="10" fill="rgba(124,58,237,0.1)" stroke="#a78bfa" stroke-width="1.5"/>
+  <text x="710" y="586" fill="#c084fc" font-size="11" font-weight="700" text-anchor="middle">Self-Calculated Mindshare</text>
+  <text x="710" y="601" fill="#a78bfa" font-size="9" text-anchor="middle">Telegram 40% + X 40% + KOL 20%</text>
+  <text x="710" y="616" fill="#888" font-size="8" text-anchor="middle">Korean Community Perp DEX Interest Index</text>
+
+  <!-- Mindshare -> Report + Trend -->
+  <path d="M 640 565 Q 500 500 280 115" stroke="#c084fc" stroke-width="1.5" fill="none" stroke-dasharray="5 3" marker-end="url(#ap)" opacity="0.6"/>
+  <path d="M 620 565 Q 350 450 113 250" stroke="#c084fc" stroke-width="1.5" fill="none" stroke-dasharray="5 3" marker-end="url(#ap)" opacity="0.6"/>
+
+  <!-- Legend -->
+  <rect x="8" y="560" width="280" height="80" rx="8" fill="rgba(255,255,255,0.02)" stroke="#374151" stroke-width="1"/>
+  <text x="22" y="580" fill="#9ca3af" font-size="9" font-weight="700">Legend</text>
+  <line x1="22" y1="592" x2="50" y2="592" stroke="#3b82f6" stroke-width="2"/><text x="56" y="596" fill="#999" font-size="9">Within-LINE data flow</text>
+  <line x1="160" y1="592" x2="188" y2="592" stroke="#3b82f6" stroke-width="1.5"/><text x="194" y="596" fill="#999" font-size="9">&rarr; Telegram output</text>
+  <line x1="22" y1="610" x2="50" y2="610" stroke="#a78bfa" stroke-width="2" stroke-dasharray="6 3"/><text x="56" y="614" fill="#999" font-size="9">Cross-LINE data transfer</text>
+  <line x1="22" y1="628" x2="50" y2="628" stroke="#c084fc" stroke-width="1.5" stroke-dasharray="4 3"/><text x="56" y="632" fill="#999" font-size="9">Mindshare data feed</text>
+
+</svg>
+</div>
+
+<!-- ============================== -->
+<!-- AGENT COMMUNICATION SUMMARY -->
+<!-- ============================== -->
+<div class="sh">Agent Communication Summary</div>
+<p style="font-size:12px;color:#888;margin-bottom:14px;">Who sends output to whom &mdash; key connections between agents</p>
+
+<div style="background:#111827;border:1px solid #374151;border-radius:10px;padding:16px;margin-bottom:20px;">
+<table class="comm-table">
+  <tr style="border-bottom:1px solid #374151;">
+    <td style="color:#a78bfa;font-weight:700;">Sending Agent</td>
+    <td style="color:#22d3ee;font-weight:700;">Receiving Agent</td>
+    <td style="color:#888;">What is transferred?</td>
+  </tr>
+  <tr>
+    <td><span class="from-dot" style="background:#3b82f6;"></span>Report Reviewer Agent</td>
+    <td><span class="from-dot" style="background:#ef4444;"></span>POC Agent</td>
+    <td style="color:#999;">Finalized market analysis report</td>
+  </tr>
+  <tr>
+    <td><span class="from-dot" style="background:#10b981;"></span>Trend Research Agent</td>
+    <td><span class="from-dot" style="background:#10b981;"></span>Contents Creator Agent</td>
+    <td style="color:#999;">Trend/meme analysis &rarr; used for content planning</td>
+  </tr>
+  <tr>
+    <td><span class="from-dot" style="background:#10b981;"></span>Trend Research Agent</td>
+    <td><span class="from-dot" style="background:#ef4444;"></span>POC Agent</td>
+    <td style="color:#999;">Trend analysis &rarr; included in executive report</td>
+  </tr>
+  <tr>
+    <td><span class="from-dot" style="background:#ef4444;"></span>Perf Agent (Weekly)</td>
+    <td><span class="from-dot" style="background:#ef4444;"></span>POC Agent</td>
+    <td style="color:#999;">Weekly performance data &rarr; included in executive report</td>
+  </tr>
+  <tr>
+    <td><span class="from-dot" style="background:#3b82f6;"></span>Market Follower Internal (cached data)</td>
+    <td><span class="from-dot" style="background:#f59e0b;"></span>Q&A Agent</td>
+    <td style="color:#999;">Reuses community data (avoids duplicate API calls)</td>
+  </tr>
+  <tr>
+    <td><span class="from-dot" style="background:#3b82f6;"></span>Market Follower External (cached data)</td>
+    <td><span class="from-dot" style="background:#f59e0b;"></span>Promotion Agent</td>
+    <td style="color:#999;">Competitor data &rarr; used for marketing planning</td>
+  </tr>
+  <tr>
+    <td><span class="from-dot" style="background:#a78bfa;"></span>Mindshare Calculator</td>
+    <td><span class="from-dot" style="background:#3b82f6;"></span>Report + <span class="from-dot" style="background:#10b981;"></span>Trend</td>
+    <td style="color:#999;">Perp DEX Korean community interest chart</td>
+  </tr>
+</table>
+</div>
+
+<!-- ============================== -->
+<!-- DATA SOURCES -->
+<!-- ============================== -->
+<div class="sh">Data Sources</div>
+<div class="ds">
+  <div class="dsg">
+    <h4>Telegram Groups (18+)</h4>
+    <p><strong>Variational:</strong> variational_io_KR</p>
+    <p><strong>Hyperliquid:</strong> Hyperliquid_KR</p>
+    <p><strong>edgeX:</strong> edgexkoreachat</p>
+    <p><strong>GRVT:</strong> GRVT_farmingchat</p>
+    <p><strong>Lighter:</strong> Lighter_KR</p>
+    <p><strong>BasedApp:</strong> krbased</p>
+    <p><strong>KOL:</strong> 9 channels &nbsp;|&nbsp; <strong>News:</strong> 3 channels</p>
+  </div>
+  <div class="dsg">
+    <h4>X (Twitter) &mdash; 6 Accounts</h4>
+    <p>@variaboratory &middot; @HyperliquidX</p>
+    <p>@edgeX_exchange &middot; @grvt_official</p>
+    <p>@lighter_xyz &middot; @BasedOneX</p>
+    <p style="color:#f59e0b;margin-top:6px;">* Currently on free plan &mdash; paid API upgrade improves accuracy</p>
+  </div>
+  <div class="dsg">
+    <h4>Market Data</h4>
+    <p><strong>DeFiLlama:</strong> DEX Volume, TVL</p>
+    <p><strong>CoinGecko:</strong> Token Prices, Market Cap</p>
+    <p style="color:#a78bfa;"><strong>Mindshare:</strong> Self-calculated (TG + X + KOL weighted avg)</p>
+  </div>
+</div>
+
+<!-- ============================== -->
+<!-- MINDSHARE -->
+<!-- ============================== -->
+<div class="sh">Korean Community Mindshare Calculation</div>
+<div class="ms-section">
+  <div class="line-tag">Perp DEX Interest Comparison</div>
+
+  <p style="font-size:11px;color:#c4b5fd;margin-bottom:10px;">
+    Global mindshare services (Kaito, SurfAI) cost $299+/mo, so we designed a <strong>self-calculated interest index</strong> using existing collected data<br>
+    * This is a Korean community-based relative comparison metric, not global mindshare
+  </p>
+
+  <div class="ms-pipeline">
+    <div class="ms-box"><h4>Telegram Activity</h4><p>6 groups: messages + views + replies</p><div class="pct">40%</div></div>
+    <div class="ms-arrow">+</div>
+    <div class="ms-box"><h4>X (Twitter) Engagement</h4><p>6 accounts: likes + RT + replies</p><div class="pct">40%</div><p style="color:#f59e0b;font-size:8px;margin-top:4px;">Accuracy improves with paid API</p></div>
+    <div class="ms-arrow">+</div>
+    <div class="ms-box"><h4>KOL / News Channels</h4><p>12 channels: project mention frequency</p><div class="pct">20%</div></div>
+    <div class="ms-arrow">=</div>
+    <div class="ms-box" style="border-color:#c084fc;min-width:160px;"><h4 style="color:#c084fc;">Total Mindshare (%)</h4><p style="color:#c084fc;font-weight:700;">Perp DEX Interest Ranking</p></div>
+  </div>
+
+  <div style="margin-top:14px;background:#0d0820;border:1px solid #374151;border-radius:8px;padding:14px;font-family:monospace;font-size:11px;line-height:1.6;">
+    <div style="color:#c084fc;font-weight:700;margin-bottom:4px;">Sample Output:</div>
+    <div style="color:#e0e0e0;">
+      Hyperliquid &nbsp;&#9608;&#9608;&#9608;&#9608;&#9608;&#9608;&#9608;&#9608;&#9608;&#9608;&#9608;&#9608;&#9608;&#9608; &nbsp;48.7%<br>
+      BasedApp &nbsp;&nbsp;&nbsp;&#9608;&#9608;&#9608;&#9608;&#9608;&#9608;&#9608;&#9608;&#9617;&#9617;&#9617;&#9617;&#9617;&#9617; &nbsp;22.3%<br>
+      Variational &nbsp;&#9608;&#9608;&#9608;&#9608;&#9608;&#9617;&#9617;&#9617;&#9617;&#9617;&#9617;&#9617;&#9617;&#9617; &nbsp;14.1%<br>
+      GRVT &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&#9608;&#9608;&#9608;&#9617;&#9617;&#9617;&#9617;&#9617;&#9617;&#9617;&#9617;&#9617;&#9617;&#9617; &nbsp;&nbsp;8.5%<br>
+      edgeX &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&#9608;&#9608;&#9617;&#9617;&#9617;&#9617;&#9617;&#9617;&#9617;&#9617;&#9617;&#9617;&#9617;&#9617; &nbsp;&nbsp;4.2%<br>
+      Lighter &nbsp;&nbsp;&nbsp;&nbsp;&#9608;&#9617;&#9617;&#9617;&#9617;&#9617;&#9617;&#9617;&#9617;&#9617;&#9617;&#9617;&#9617;&#9617; &nbsp;&nbsp;2.2%
+    </div>
+  </div>
+</div>
+
+<!-- ============================== -->
+<!-- PIPELINE SCHEDULE -->
+<!-- ============================== -->
+<div class="sh">Automated Pipeline Schedule</div>
+<div class="pipes">
+  <div class="pipe">
+    <h3 style="color:#3b82f6;">Daily at 11:00 AM (KST)</h3>
+    <div class="pstep"><span class="sn">1</span> Trend Analysis &rarr; Content Planning</div>
+    <div class="pstep"><span class="sn">2</span> Market Report Draft &rarr; Review</div>
+    <div class="pstep"><span class="sn">3</span> Daily Performance Measurement</div>
+    <div class="pstep"><span class="sn">4</span> Community Q&A Answer Drafts</div>
+    <div style="font-size:10px;color:#888;margin-top:6px;">4 LINEs run sequentially &mdash; ~3 min total</div>
+  </div>
+  <div class="pipe">
+    <h3 style="color:#ef4444;">Weekly on Friday at 11:30 AM (KST)</h3>
+    <div class="pstep"><span class="sn">1</span> Marketing Plan Generation</div>
+    <div class="pstep"><span class="sn">2</span> Weekly Performance Analysis</div>
+    <div class="pstep"><span class="sn">3</span> POC Agent Executive Report</div>
+    <div style="font-size:10px;color:#888;margin-top:6px;">POC Agent consolidates all LINE outputs &rarr; executive summary</div>
+  </div>
+</div>
+
+<!-- ============================== -->
+<!-- DEV DETAILS TOGGLE BUTTON -->
+<!-- ============================== -->
+<button class="dev-toggle-btn" onclick="document.getElementById('devDetails').classList.toggle('open'); this.textContent = this.textContent.includes('Show') ? 'Hide Developer Details' : 'Show Developer Details';">
+  Show Developer Details
+</button>
+
+<div id="devDetails" class="dev-details">
+
+  <!-- Cache Architecture -->
+  <div class="sh">Cache Architecture</div>
+  <p style="font-size:11px;color:#888;margin-bottom:12px;">Cache keys and read/write relationships used for inter-agent data sharing</p>
+
+  <div style="background:#111827;border:1px solid #374151;border-radius:10px;padding:16px;margin-bottom:20px;">
+  <table class="comm-table">
+    <tr style="border-bottom:1px solid #374151;">
+      <td style="color:#a78bfa;font-weight:700;">Cache Key</td>
+      <td style="color:#22d3ee;font-weight:700;">WRITE</td>
+      <td style="color:#f59e0b;font-weight:700;">READ</td>
+      <td style="color:#888;font-weight:700;">TTL</td>
+    </tr>
+    <tr>
+      <td><code style="color:#c084fc;">market_report</code></td>
+      <td style="color:#999;">Report Reviewer Agent <span class="from-dot" style="background:#3b82f6;"></span></td>
+      <td style="color:#999;">POC Agent <span class="from-dot" style="background:#ef4444;"></span></td>
+      <td style="color:#666;">2h</td>
+    </tr>
+    <tr>
+      <td><code style="color:#c084fc;">trend_research</code></td>
+      <td style="color:#999;">Trend Research Agent <span class="from-dot" style="background:#10b981;"></span></td>
+      <td style="color:#999;">Contents Creator <span class="from-dot" style="background:#10b981;"></span>, POC Agent <span class="from-dot" style="background:#ef4444;"></span></td>
+      <td style="color:#666;">2h</td>
+    </tr>
+    <tr>
+      <td><code style="color:#c084fc;">performance_weekly</code></td>
+      <td style="color:#999;">Perf Agent (Weekly) <span class="from-dot" style="background:#ef4444;"></span></td>
+      <td style="color:#999;">POC Agent <span class="from-dot" style="background:#ef4444;"></span></td>
+      <td style="color:#666;">2h</td>
+    </tr>
+    <tr>
+      <td><code style="color:#c084fc;">telegram</code></td>
+      <td style="color:#999;">Market Follower Internal Agent <span class="from-dot" style="background:#3b82f6;"></span></td>
+      <td style="color:#999;">Q&A Agent <span class="from-dot" style="background:#f59e0b;"></span></td>
+      <td style="color:#666;">2h</td>
+    </tr>
+    <tr>
+      <td><code style="color:#c084fc;">competitor</code></td>
+      <td style="color:#999;">Market Follower External Agent <span class="from-dot" style="background:#3b82f6;"></span></td>
+      <td style="color:#999;">Promotion Agent <span class="from-dot" style="background:#f59e0b;"></span></td>
+      <td style="color:#666;">2h</td>
+    </tr>
+    <tr>
+      <td><code style="color:#c084fc;">mindshare</code></td>
+      <td style="color:#999;">mindshare_calculator <span class="from-dot" style="background:#a78bfa;"></span></td>
+      <td style="color:#999;">Report Agent <span class="from-dot" style="background:#3b82f6;"></span>, Trend Research <span class="from-dot" style="background:#10b981;"></span></td>
+      <td style="color:#666;">2h</td>
+    </tr>
+  </table>
+  </div>
+
+  <div class="conn-note" style="margin-bottom:20px;">
+    <strong>Design Principle:</strong> All cache TTL is 2 hours. No duplicate API calls within the same pipeline run.<br>
+    <strong>Daily:</strong> Claude API x4, DeFiLlama x3, Cache hits 8+ &nbsp;|&nbsp; <strong>Weekly:</strong> Claude x3 additional, cache reuse
+  </div>
+
+  <!-- Utility Layer -->
+  <div class="sh">Utility Layer</div>
+  <div class="ugrid">
+    <div class="ubox"><h4>telegram_collector.py</h4><p>Telethon singleton, batch collection</p></div>
+    <div class="ubox"><h4>telegram_sender.py</h4><p>UTF-8 chunking, Markdown fallback, Rate Limit</p></div>
+    <div class="ubox"><h4>x_collector.py</h4><p>Apify X/Twitter (paid upgrade ready)</p></div>
+    <div class="ubox"><h4>market_data.py</h4><p>DeFiLlama + CoinGecko</p></div>
+    <div class="ubox"><h4>data_cache.py</h4><p>2h TTL in-memory cache</p></div>
+    <div class="ubox"><h4>message_filter.py</h4><p>Kiwi morpheme analysis + keyword extraction</p></div>
+    <div class="ubox"><h4>mindshare_calculator.py</h4><p>Self-calculated KR Mindshare index</p></div>
+    <div class="ubox"><h4>llm.py</h4><p>Claude API, per-agent max_tokens</p></div>
+    <div class="ubox"><h4>logger.py</h4><p>TimedRotating (7d general + 30d error)</p></div>
+    <div class="ubox"><h4>surf_collector.py</h4><p>SurfAI ($299/mo activation pending)</p></div>
+  </div>
+
+  <!-- Tech Stack -->
+  <div class="sh">Tech Stack</div>
+  <div class="tech">
+    <div class="tbadge"><strong style="color:#3b82f6;">AI:</strong> Claude API (Anthropic)</div>
+    <div class="tbadge"><strong style="color:#10b981;">NLP:</strong> Kiwi (Korean Morpheme)</div>
+    <div class="tbadge"><strong style="color:#f59e0b;">Messaging:</strong> Telethon + Telegram Bot API</div>
+    <div class="tbadge"><strong style="color:#ef4444;">Market:</strong> DeFiLlama + CoinGecko</div>
+    <div class="tbadge"><strong style="color:#a78bfa;">Social:</strong> Apify (X/Twitter)</div>
+    <div class="tbadge"><strong style="color:#ec4899;">Scheduler:</strong> Python schedule</div>
+    <div class="tbadge"><strong style="color:#14b8a6;">Logging:</strong> TimedRotatingFileHandler</div>
+    <div class="tbadge"><strong style="color:#c084fc;">Cache:</strong> In-memory (2h TTL)</div>
+  </div>
+
+</div><!-- /devDetails -->
+
+<div style="text-align:center;color:#555;font-size:11px;margin-top:40px;padding-bottom:20px;">
+  Variational AI Agent Harness v1.0 | Built by PeanutButter | 2026
+</div>
+
+</div>
+</body>
+</html>

@@ -1,0 +1,31 @@
+# Environment variables (API keys, tokens)
+.env
+.env.local
+.env.production
+
+# Telegram session (계정 인증 파일)
+*.session
+
+# Never commit secrets
+*.pem
+*.key
+credentials.json
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+
+# API 호출 카운터
+.defillama_counter.json
+
+# 로그 파일
+logs/
+
+# Dependencies (추후 구현 시)
+node_modules/
+__pycache__/
+*.pyc

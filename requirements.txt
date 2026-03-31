@@ -1,0 +1,8 @@
+# Variational AI Agent System 필수 라이브러리
+python-dotenv==1.1.0      # .env 파일에서 환경변수 로딩
+anthropic==0.52.0          # Claude API 호출
+requests==2.32.3           # HTTP 요청 (텔레그램 전송 등)
+schedule==1.2.2            # 스케줄러 (매일/매주 자동 실행)
+telethon==1.42.0           # Telegram 그룹 메시지 수집 (데이터 수집용)
+apify-client==2.5.0        # X(Twitter) 데이터 수집 (Apify 크롤러)
+kiwipiepy==0.23.0          # 한국어 형태소 분석 (메시지 필터링)
